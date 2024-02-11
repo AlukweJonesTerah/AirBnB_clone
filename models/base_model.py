@@ -43,7 +43,7 @@ class BaseModel:
         This method is used to update and save updated at datime attribute
         :return: no return
         """
-        self.updated_at = self.time
+        self.updated_at = datetime.now()
         models.storage.save()
         models.storage.new(self)
 
@@ -53,12 +53,13 @@ class BaseModel:
         instance attributes
         :return: result
         """
-        excluded = ["name", "my_number"]
+        excluded = ['name', 'my_number']
         result = {k: v for k, v in self.__dict__.items() if k not in excluded}
         result['__class__'] = self.__class__.__name__
 
         for k, v in result.items():
             if isinstance(v, datetime):
                 result[k] = v.isoformat()
+
         return result
     
