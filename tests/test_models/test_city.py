@@ -35,6 +35,7 @@ class TestCityModel(unittest.TestCase):
         city_dict = self.city.to_dict()
         self.assertIsInstance(city_dict, dict)
         self.assertEqual(city_dict['__class__'], 'City')
+        self.assertEqual(city_dict['state_id'], self.city.state_id)
         self.assertIn('id', city_dict)
         self.assertIn('created_at', city_dict)
         self.assertIn('updated_at', city_dict)

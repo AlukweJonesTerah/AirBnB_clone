@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/bnb.iml" filepath="$PROJECT_DIR$/.idea/bnb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../AirBnB_clone/.idea/AirBnB_clone.iml" filepath="$PROJECT_DIR$/../AirBnB_clone/.idea/AirBnB_clone.iml" />
     </modules>
   </component>
 </project>

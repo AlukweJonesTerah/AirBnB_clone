@@ -12,3 +12,14 @@ One towel per guest
 One pillow per guest
 Linens for each guest bed
 """
+
+from models import base_model
+
+
+class Amenity(base_model.BaseModel):
+    """
+    This class inherits from the Base parent class
+    This class handles the basic items that guests
+    expect
+    """
+    name: str = ""

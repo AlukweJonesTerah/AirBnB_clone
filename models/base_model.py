@@ -10,7 +10,7 @@ class BaseModel:
     The instances are utilized by other classes
     """
     # global variable for time
-    time_format = '%Y-%m-%dT%H-%M-%S.%f'
+    TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
     time = datetime.now()
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +24,7 @@ class BaseModel:
             for key, value in kwargs.items():
                 if key != '__class__':
                     if key in ["created_at", "updated_at"]:
-                        value = datetime.strftime(value, self.time_format)
+                        value = datetime.strptime(value, self.TIME_FORMAT)
                     setattr(self, key, value)
         else:
             self.id = str(uuid.uuid4())
@@ -36,7 +36,7 @@ class BaseModel:
         :return: a str representation of the created instance
         """
         class_name = self.__class__.__name__
-        return "{} {} {}".format(class_name, self.id, self.__dict__)
+        return "[{}] ({}) {}".format(class_name, self.id, self.__dict__)
 
     def save(self):
         """
