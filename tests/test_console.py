@@ -3,13 +3,13 @@
 """Unnitest for console
 """
 
-import sys
 import unittest
-from unittest.mock import patch
 from io import StringIO
+from unittest.mock import patch
+
 from console import HBNBCommand
-from models.base_model import BaseModel
 from models import storage
+from models.base_model import BaseModel
 
 
 class TestConsole(unittest.TestCase):

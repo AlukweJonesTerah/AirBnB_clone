@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
 import unittest
+
 from models.place import Place
-from datetime import datetime
-import os
 
 
 class TestPlaceModel(unittest.TestCase):
@@ -74,6 +73,7 @@ class TestPlaceModel(unittest.TestCase):
         old_updated_at = self.place.updated_at
         self.place.save()
         self.assertNotEqual(old_updated_at, self.place.updated_at)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,8 @@
+#!/usr/bin/python3
+
 import unittest
+
 from models.amenity import Amenity
-import os
 
 
 class TestAmenityModel(unittest.TestCase):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """
 Command line interpreter
 
@@ -7,8 +7,6 @@ to Interact with the system
 """
 import cmd
 import re
-import readline
-
 from models import storage
 from models.amenity import Amenity
 from models.base_model import BaseModel
@@ -18,11 +16,11 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
-print(dir(cmd.Cmd))
-
 
 class HBNBCommand(cmd.Cmd):
-    prompt = "(Type your command here): "
+    prompt = "(Enter you command:) "
+
+    # TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
     CLASSES = {
         'BaseModel': BaseModel,
@@ -35,60 +33,59 @@ class HBNBCommand(cmd.Cmd):
     }
 
     def emptyline(self):
-        """This function does nothing on an empty line on the cmd interpreter """
+        """Do nothing on an empty line."""
         pass
 
-    def do_EOF(self, arg):
-        """Exit the console by holding (ctrl+D) command"""
+    def do_EOF(self, line):
+        """Exit the console on EOF (Ctrl+D) command."""
         print()
         return True
 
-    def do_quit(self, arg):
-        """This quits or exits the program"""
+    def do_quit(self, line):
+        """Quit command to exit the program."""
         return True
 
     def help_quit(self):
-        """ Helps to define the quit function"""
+        """Help message for the quit command."""
         print("Quit command to exit the program\n")
 
     def handle_custom_command(self, class_name, action):
-        """This function handle custom commands """
+        """Handle custom commands like <class name>.all()
+        or <class name>.count()."""
         parts = action.split("(")
-        if len(parts) == 2 and parts[1].endswith(")"):
+        if len(parts) == 2 and parts[1].endswith(')'):
             action_name = parts[0]
-            action_args = parts[1][:-1].split(",")
+            action_args = parts[1][:-1].split(',')
 
-            # Strip quotes from arguments
-            action_args = [arg.strip('"') for arg in action_args]
+            # Remove surrounding quotes if present
+            action_args = [arg.strip('\"') for arg in action_args]
 
-            if action_name == "show":
+            if action_name == 'show':
                 key = "{}.{}".format(class_name, action_args[0])
                 if key in storage.all():
                     print(storage.all()[key])
                 else:
-                    print("** no instance found **")
-
-            elif action_name == "all":
-                objs = [str(v) for k, v in storage.all().items()
-                        if k.startswith(class_name)]
-                print(objs)
-
-            elif action_name == "count":
-                count = 0
-                for k in storage.all():
-                    if k.startswith(class_name + '.'):
-                        count += 1
+                    print(f"** no instance found **")
+            elif action_name == 'all':
+                instances = [
+                    str(obj) for key, obj in storage.all().items()
+                    if key.startswith(class_name + '.')
+                ]
+                print(instances)
+            elif action_name == 'count':
+                count = sum(
+                    1 for key in storage.all()
+                    if key.startswith(class_name + '.')
+                )
                 print(count)
-
-            elif action_name == "destroy":
+            elif action_name == 'destroy':
                 key = "{}.{}".format(class_name, action_args[0])
                 if key in storage.all():
                     del storage.all()[key]
                     storage.save()
                 else:
-                    print("** no instance found **")
-
-            elif action_name == "update":
+                    print(f"** no instance found **")
+            elif action_name == 'update':
                 key = "{}.{}".format(class_name, action_args[0])
                 if key in storage.all():
                     obj = storage.all()[key]
@@ -99,57 +96,38 @@ class HBNBCommand(cmd.Cmd):
                     setattr(obj, attribute_name, attribute_value)
                     obj.save()
                 else:
-                    print("** no instance found **")
-
+                    print(f"** no instance found **")
             else:
-                print(f"** invalid action: {action_name}.\
-                Type 'help' for assistance **")
-
+                print(f"Unrecognized action: {action_name}.\
+                Type 'help' for assistance.\n")
         else:
-            print(f"** invalid syntax: {action}.\
-             Type 'help' to get assistance**")
+            print(f"Unrecognized action: {action}.\
+            Type 'help' for assistance.\n")
 
     def default(self, line):
-        """Handles default behavior when command is not recognized"""
-        if not line:
-            return
-        commands = line.split('.')
-        if len(commands) < 2:
-            print("** invalid syntax **")
-            return
-        classname = commands[0]
-        argument = '.'.join(commands[1:])
-        if classname not in HBNBCommand.CLASSES:
-            print("** class doesn't exist **")
-            return
-        if not argument:
-            print("** missing command **")
-            return
-        self.handle_custom_command(classname, argument)
+        """Handle unrecognized commands."""
+        parts = line.split('.')
+        if len(parts) == 2:
+            class_name, action = parts
+            self.handle_custom_command(class_name, action)
+        else:
+            print(f"Unrecognized command: {line}.\
+                  Type 'help' for assistance.\n")
 
     def do_create(self, line):
-        """Creates a new instance, saves it, and prints the id"""
-
-        if not line:
+        """Creates a new instance of BaseModel, saves it (to the JSON file)"""
+        args = line.split()
+        if not args:
             print("** class name missing **")
             return
-        # Parse the class name and args from the line
-        args = line.split()
-        classname = args[0]
 
-        # Validate the class name
-        if classname not in HBNBCommand.CLASSES:
-            print("** class doesn't exist **")
-            return
-        # Create instance
         try:
-            new_instance = eval(classname)()
-        except Exception as e:
+            class_name = args[0]
+            object = self.CLASSES[class_name]()
+            object.save()
+            print(object.id)
+        except ImportError:
             print("** class doesn't exist **")
-            return
-        # Save new instance and print id
-        new_instance.save()
-        print(new_instance.id)
 
     def do_show(self, line):
         """Prints the string representation of an instance
@@ -169,30 +147,30 @@ class HBNBCommand(cmd.Cmd):
                 print(storage.all()[key])
 
     def do_destroy(self, line):
-        """Deletes an instance based on the class name and id"""
+        """Deletes an instance based on the class name and id
+        (save the change into the JSON file)."""
         args = line.split()
-        if len(args) < 2:
+        if not args:
+            print("** class name missing **")
+        elif args[0] not in self.CLASSES:
+            print("** class doesn't exist **")
+        elif len(args) < 2:
             print("** instance id missing **")
-            return
-
-        classname = args[0]
-        instance_id = args[1]
-
-        key = f"{classname}.{instance_id}"
-        obj = storage.all().get(key)
-
-        if not obj:
-            print("** no instance found **")
         else:
-            del storage.all()[key]
-            storage.save()
+            key = "{}.{}".format(args[0], args[1])
+            if key not in storage.all():
+                print("** no instance found **")
+            else:
+                del storage.all()[key]
+                storage.save()
 
     def do_all(self, line):
-        """Deletes an instance based on the class name and id
-            the updates are then saved
+        """ Deletes an instance based on the class name and id
+        (save the change into the JSON file).
         """
         args = line.split()
         # objects = storage.all()
+
         if not args:
             print([str(obj) for obj in storage.all().values()])
         elif args[0] not in self.CLASSES:
@@ -244,9 +222,14 @@ class HBNBCommand(cmd.Cmd):
 
         obj = storage.all()[key]
 
+        # Store the previous updated_at value
+        # prev_updated_at = obj.updated_at
+
         # Simplify attribute handling (without explicit checks)
         setattr(obj, attribute, value)
 
+        # Always update the updated_at attribute
+        # obj.updated_at = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
         storage.all()[key].save()
 
     # aliasing
@@ -254,7 +237,5 @@ class HBNBCommand(cmd.Cmd):
 
 
 if __name__ == "__main__":
-    # readline.parse_and_bind("tab: complete") for UNIX
-    readline.parse_and_bind("bind ^rl_complete")  # for MAC
     interface = HBNBCommand()
     interface.cmdloop()

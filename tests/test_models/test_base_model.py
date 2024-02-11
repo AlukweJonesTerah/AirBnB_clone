@@ -5,9 +5,8 @@ Unittest for BaseModel class
 """
 
 import unittest
+
 from models.base_model import BaseModel
-from datetime import datetime
-import os
 
 
 class TestBaseModel(unittest.TestCase):

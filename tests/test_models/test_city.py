@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
 import unittest
+
 from models.city import City
-from datetime import datetime
-import os
 
 
 class TestCityModel(unittest.TestCase):
